@@ -6,7 +6,11 @@ mod requests;
 #[macro_use]
 extern crate rocket;
 
-use api::{healthcheck::healthcheck, post::generate_post};
+use api::{
+    generate::generate_post,
+    healthcheck::healthcheck,
+    post::{get_all_posts, get_post},
+};
 use repositories::mongo::MongoRepository;
 
 #[launch]
@@ -16,5 +20,5 @@ fn rocket() -> _ {
     rocket::build()
         .manage(db)
         .mount("/", routes![healthcheck])
-        .mount("/api", routes![generate_post])
+        .mount("/api", routes![get_post, get_all_posts, generate_post])
 }

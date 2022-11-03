@@ -55,10 +55,7 @@ impl MongoRepository {
 
     pub fn get_post(&self, id: &String) -> Result<Post, Error> {
         // Parse the object ID from the string input
-        let object_id = match ObjectId::parse_str(id) {
-            Ok(value) => value,
-            Err(e) => return Err(e),
-        };
+        let object_id = ObjectId::parse_str(id)?;
 
         let filter = doc! {"_id": object_id};
 
@@ -70,5 +67,17 @@ impl MongoRepository {
             .expect("Couldn't get post.");
 
         Ok(result.unwrap()) // Okay to unwrap here as we catch any exceptions above
+    }
+
+    pub fn get_all_posts(&self) -> Result<Vec<Post>, Error> {
+        let cursors = self
+            .collection
+            .find(None, None)
+            .ok()
+            .expect("Couldn't get all posts.");
+
+        let posts = cursors.map(|document| document.unwrap()).collect();
+
+        Ok(posts)
     }
 }
