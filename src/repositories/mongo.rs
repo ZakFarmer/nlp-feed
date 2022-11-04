@@ -5,8 +5,8 @@ use dotenv::dotenv;
 
 use mongodb::{
     bson::{doc, extjson::de::Error, oid::ObjectId},
-    results::InsertOneResult,
-    sync::{Client, Collection},
+    results::{InsertOneResult, UpdateResult},
+    sync::{Client, Collection, Cursor},
 };
 
 use crate::models::post::Post;
@@ -22,7 +22,7 @@ impl MongoRepository {
         // Attempt to read MongoDB connection URI from .env
         let uri = match env::var("MONGODB_URI") {
             Ok(var) => var.to_string(),
-            Err(_) => format!("Error loading MongoDB URI env variable"),
+            Err(_) => format!("Error loading MongoDB URI env variable."),
         };
 
         // Initialise database client
@@ -41,6 +41,7 @@ impl MongoRepository {
             title: new_post.title,
             content: new_post.content,
             link_to_article: new_post.link_to_article,
+            populated: false,
         };
 
         // Add the post to the database
@@ -64,9 +65,10 @@ impl MongoRepository {
             .collection
             .find_one(filter, None)
             .ok()
-            .expect("Couldn't get post.");
+            .expect("Couldn't get post.")
+            .unwrap();
 
-        Ok(result.unwrap()) // Okay to unwrap here as we catch any exceptions above
+        Ok(result) // Okay to unwrap here as we catch any exceptions above
     }
 
     pub fn get_all_posts(&self) -> Result<Vec<Post>, Error> {
@@ -79,5 +81,41 @@ impl MongoRepository {
         let posts = cursors.map(|document| document.unwrap()).collect();
 
         Ok(posts)
+    }
+
+    pub fn get_unpopulated_posts(&self) -> Result<Cursor<Post>, Error> {
+        let filter = doc! {"populated": false};
+
+        let cursor = self
+            .collection
+            .find(filter, None)
+            .ok()
+            .expect("Could get unpopulated posts.");
+
+        Ok(cursor)
+    }
+
+    pub fn update_post(&self, id: &String, new_post: Post) -> Result<UpdateResult, Error> {
+        let object_id = ObjectId::parse_str(id)?;
+
+        let filter = doc! {"_id": object_id};
+
+        let new_document = doc! {
+            "$set": {
+                "id": new_post.id,
+                "title": new_post.title,
+                "content": new_post.content,
+                "link_to_article": new_post.link_to_article,
+                "populated": new_post.populated,
+            },
+        };
+
+        let post = self
+            .collection
+            .update_one(filter, new_document, None)
+            .ok()
+            .expect("Couldn't update post.");
+
+        Ok(post)
     }
 }
