@@ -1,5 +1,5 @@
 use crate::{
-    models::post::Post, repositories::mongo::MongoRepository, requests::post::PostRequest,
+    models::post::Post, repositories::mongo::MongoRepository,
 };
 use mongodb::results::InsertOneResult;
 use rocket::{http::Status, serde::json::Json, State};

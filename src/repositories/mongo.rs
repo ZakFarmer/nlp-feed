@@ -6,7 +6,7 @@ use dotenv::dotenv;
 use mongodb::{
     bson::{doc, extjson::de::Error, oid::ObjectId},
     results::{InsertOneResult, UpdateResult},
-    sync::{Client, Collection, Cursor},
+    sync::{Client, Collection},
 };
 
 use crate::models::post::Post;
@@ -21,8 +21,8 @@ impl MongoRepository {
 
         // Attempt to read MongoDB connection URI from .env
         let uri = match env::var("MONGODB_URI") {
-            Ok(var) => var.to_string(),
-            Err(_) => format!("Error loading MongoDB URI env variable."),
+            Ok(var) => var,
+            Err(_) => "Error loading MongoDB URI env variable.".to_string(),
         };
 
         // Initialise database client

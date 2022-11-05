@@ -7,7 +7,7 @@ pub enum Prompt {
 }
 
 pub fn import_prompt(prompt: Prompt, keyword: String) -> std::io::Result<String> {
-    let mut prompt_id = match prompt {
+    let prompt_id = match prompt {
         Prompt::Blog => "blog",
         Prompt::News => "news",
         _ => "blog",

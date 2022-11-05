@@ -13,13 +13,13 @@ impl GptClient {
         dotenv().ok();
 
         let api_token = match env::var("GPT_API_TOKEN") {
-            Ok(var) => var.to_string(),
-            Err(_) => format!("Error loading GPT API Token env variable."),
+            Ok(var) => var,
+            Err(_) => "Error loading GPT API Token env variable.".to_string(),
         };
 
         let api_url = match env::var("GPT_API_URL") {
-            Ok(var) => var.to_string(),
-            Err(_) => format!("Error loading GPT API base URL env variable."),
+            Ok(var) => var,
+            Err(_) => "Error loading GPT API base URL env variable.".to_string(),
         };
 
         GptClient { api_token, api_url }

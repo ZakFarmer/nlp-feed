@@ -18,7 +18,7 @@ use api::{
     utility::populate_posts,
 };
 use repositories::mongo::MongoRepository;
-use rocket::Config;
+
 
 #[launch]
 fn rocket() -> _ {

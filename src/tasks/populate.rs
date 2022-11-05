@@ -1,19 +1,18 @@
-use std::{env, time::Duration};
+use std::{time::Duration};
 
 use async_std::task;
 
-use chrono::{DateTime, Utc};
-use dotenv::dotenv;
+
+
 use rocket::State;
-use serde_json::Value;
+
 
 use crate::{
-    external::{gptclient::GptClient, newscatcherclient::NewsCatcherClient},
-    models::{article::Articles, post::Post},
+    external::{gptclient::GptClient},
+    models::{post::Post},
     repositories::mongo::MongoRepository,
     utility::{
         prompt::{import_prompt, Prompt},
-        string::truncate,
     },
 };
 
@@ -22,7 +21,7 @@ pub async fn populate(db: &State<MongoRepository>) -> Result<bool, Box<dyn std::
     let gpt_client = GptClient::init();
 
     // Initalise index to use for iterating through articles
-    let mut index: usize = 0;
+    let _index: usize = 0;
 
     // Iterate over the posts marked as unpopulated (i.e. not processed by the model yet)
     for index in 1..15 {

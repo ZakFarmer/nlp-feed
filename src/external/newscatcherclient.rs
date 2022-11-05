@@ -1,15 +1,15 @@
-use std::{collections::HashMap, env, fmt::Error};
+use std::{env};
 
 use dotenv::dotenv;
 use reqwest::{
-    header::{AUTHORIZATION, USER_AGENT},
-    Client, StatusCode,
+    header::{USER_AGENT},
+    Client,
 };
-use rocket::serde::json::Json;
-use serde::{Deserialize, Serialize};
+
+
 use serde_json::Value;
 
-use crate::models::article::Articles;
+
 
 pub struct NewsCatcherClient {
     api_token: String,
@@ -20,8 +20,8 @@ impl NewsCatcherClient {
         dotenv().ok();
 
         let api_token = match env::var("NEWS_API_KEY") {
-            Ok(var) => var.to_string(),
-            Err(_) => format!("Error loading News API Key env variable."),
+            Ok(var) => var,
+            Err(_) => "Error loading News API Key env variable.".to_string(),
         };
 
         NewsCatcherClient { api_token }
