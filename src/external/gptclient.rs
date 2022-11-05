@@ -1,4 +1,4 @@
-use std::{collections::HashMap, env, fmt::Error};
+use std::{collections::HashMap, env, error::Error};
 
 use dotenv::dotenv;
 use reqwest::header::{AUTHORIZATION, CONTENT_TYPE};
@@ -11,8 +11,10 @@ pub struct GptClient {
 
 impl GptClient {
     pub fn init() -> Self {
+        // Initalise dotenv
         dotenv().ok();
 
+        // Initalise environment variables
         let api_token = match env::var("GPT_API_TOKEN") {
             Ok(var) => var,
             Err(_) => "Error loading GPT API Token env variable.".to_string(),
@@ -26,14 +28,21 @@ impl GptClient {
         GptClient { api_token, api_url }
     }
 
-    pub async fn query(&self, prompt: String) -> Result<String, Error> {
+    pub async fn query(&self, prompt: String) -> Result<String, Box<dyn Error>> {
+        // Initialise payload for GPT request
         let mut payload = Map::new();
         payload.insert("text".to_string(), Value::String(prompt));
-        payload.insert("max_length".to_string(), Value::Number(Number::from(200)));
+        payload.insert("length_no_input".to_string(), Value::Bool(true)); // Whether max_length should include input length or not
+        payload.insert("end_sequence".to_string(), Value::String("###".to_string())); // Specify the end sequence used in the prompt
+        payload.insert("remove_end_sequence".to_string(), Value::Bool(true)); // Omit end sequence from response
+        payload.insert("remove_input".to_string(), Value::Bool(true)); // Omit input from response
+        payload.insert("max_length".to_string(), Value::Number(Number::from(200))); // Max length of 200 chars
 
+        // Configure the reqwest client
         let client = reqwest::Client::new();
 
-        let res = client
+        // Configure the client and make the request to the GPT API
+        let response = client
             .post(&self.api_url)
             .header(AUTHORIZATION, format!("Token {}", self.api_token))
             .header(CONTENT_TYPE, "application/json")
@@ -42,8 +51,16 @@ impl GptClient {
             .await
             .expect("Couldn't query GPT API.");
 
-        let res_text = res.text().await.unwrap();
+        // Get the response text
+        let response_text = response.text().await.unwrap();
 
-        Ok(res_text)
+        // Parse the response into JSON (generically but would probably be better practice
+        // to declare a struct and deserialise the response into that struct)
+        let response_json: Value = serde_json::from_str(&response_text)?;
+
+        // Retrieve the actual generated post
+        let response_content = response_json["generated_text"].to_string();
+
+        Ok(response_content)
     }
 }

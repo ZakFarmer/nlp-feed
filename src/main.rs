@@ -1,5 +1,6 @@
 mod api;
 mod external;
+mod fairings;
 mod models;
 mod repositories;
 mod requests;
@@ -17,8 +18,8 @@ use api::{
     post::{create_post, get_all_posts, get_post},
     utility::populate_posts,
 };
+use fairings::cors::CORS;
 use repositories::mongo::MongoRepository;
-
 
 #[launch]
 fn rocket() -> _ {
@@ -28,6 +29,7 @@ fn rocket() -> _ {
 
     rocket::build()
         .manage(db)
+        .attach(CORS)
         .mount("/", routes![healthcheck])
         .mount(
             "/api",
