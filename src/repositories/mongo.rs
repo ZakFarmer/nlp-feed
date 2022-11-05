@@ -40,8 +40,6 @@ impl MongoRepository {
             id: None,
             title: new_post.title,
             content: new_post.content,
-            link_to_article: new_post.link_to_article,
-            populated: false,
         };
 
         // Add the post to the database
@@ -58,6 +56,7 @@ impl MongoRepository {
         // Parse the object ID from the string input
         let object_id = ObjectId::parse_str(id)?;
 
+        // Configure filter and specify ID
         let filter = doc! {"_id": object_id};
 
         // Query the database for the post
@@ -66,9 +65,9 @@ impl MongoRepository {
             .find_one(filter, None)
             .ok()
             .expect("Couldn't get post.")
-            .unwrap();
+            .unwrap(); // Okay to unwrap here as we catch any exceptions above
 
-        Ok(result) // Okay to unwrap here as we catch any exceptions above
+        Ok(result)
     }
 
     pub fn get_all_posts(&self) -> Result<Vec<Post>, Error> {
@@ -83,16 +82,19 @@ impl MongoRepository {
         Ok(posts)
     }
 
-    pub fn get_unpopulated_posts(&self) -> Result<Cursor<Post>, Error> {
+    pub fn get_unpopulated_posts(&self) -> Result<Vec<Post>, Error> {
+        // Configure filter to get all posts where populated is false
         let filter = doc! {"populated": false};
 
-        let cursor = self
+        let cursors = self
             .collection
             .find(filter, None)
             .ok()
             .expect("Could get unpopulated posts.");
 
-        Ok(cursor)
+        let posts = cursors.map(|document| document.unwrap()).collect();
+
+        Ok(posts)
     }
 
     pub fn update_post(&self, id: &String, new_post: Post) -> Result<UpdateResult, Error> {
@@ -100,13 +102,12 @@ impl MongoRepository {
 
         let filter = doc! {"_id": object_id};
 
+        // Define updated document
         let new_document = doc! {
             "$set": {
                 "id": new_post.id,
                 "title": new_post.title,
                 "content": new_post.content,
-                "link_to_article": new_post.link_to_article,
-                "populated": new_post.populated,
             },
         };
 

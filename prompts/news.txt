@@ -1,0 +1,14 @@
+Write a paragraph telling your opinion on the following news article summary.
+
+News article summary: Twitter staff in the UK who face losing their jobs have been given three days to nominate someone to represent them in a formal consultation about their employment.
+Under UK employment law a consultation has to be carried out before redundancies can be made.
+An email seen by the BBC from Twitter's European HR department says they have until 0900 Tuesday to decide who to put forward, and was sent on Friday night.
+Staff can nominate themselves.
+If there are more than 10 nominations, an election will be held, the email said, although there were no details offered as to how this would be organised.
+It comes after Elon Musk, the company's new owner, said he had "no choice" but to cut 50% of Twitter's staff worldwide.
+
+Opinion: I think this is terrible. It is always a bad thing when people lose their jobs, especially when it's half the workforce!
+
+News article summary: [ARTICLE_SUMMARY]
+
+Opinion: 

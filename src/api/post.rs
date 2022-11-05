@@ -30,17 +30,12 @@ pub fn get_all_posts(db: &State<MongoRepository>) -> Result<Json<Vec<Post>>, Sta
     }
 }
 
-#[post("/post", data = "<post_params>")]
-pub fn create_post(
-    db: &State<MongoRepository>,
-    post_params: Json<PostRequest>,
-) -> Result<Json<InsertOneResult>, Status> {
+#[post("/post")]
+pub fn create_post(db: &State<MongoRepository>) -> Result<Json<InsertOneResult>, Status> {
     let data = Post {
         id: None,
-        title: "Not populated yet.".to_string(),
-        content: "Not populated yet.".to_string(),
-        link_to_article: post_params.link_to_article.to_owned(),
-        populated: false,
+        title: "".to_string(),
+        content: "".to_string(),
     };
 
     let status = db.create_post(data);

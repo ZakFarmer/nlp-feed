@@ -1,6 +1,7 @@
 use std::{collections::HashMap, env, fmt::Error};
 
 use dotenv::dotenv;
+use reqwest::header::{AUTHORIZATION, CONTENT_TYPE};
 
 pub struct GptClient {
     api_token: String,
@@ -26,13 +27,15 @@ impl GptClient {
 
     pub async fn query(&self, prompt: String) -> Result<String, Error> {
         let mut payload = HashMap::new();
-        payload.insert("inputs", prompt);
+        payload.insert("text", prompt);
+        payload.insert("max_length", "200".to_string());
 
         let client = reqwest::Client::new();
 
         let res = client
             .post(&self.api_url)
-            .header("Authorization", format!("Bearer {}", self.api_token))
+            .header(AUTHORIZATION, format!("Token {}", self.api_token))
+            .header(CONTENT_TYPE, "application/json")
             .json(&payload)
             .send()
             .await

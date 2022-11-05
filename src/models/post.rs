@@ -7,6 +7,4 @@ pub struct Post {
     pub id: Option<ObjectId>,
     pub title: String,
     pub content: String,
-    pub link_to_article: String,
-    pub populated: bool,
 }
