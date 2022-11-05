@@ -2,6 +2,7 @@ use std::{collections::HashMap, env, fmt::Error};
 
 use dotenv::dotenv;
 use reqwest::header::{AUTHORIZATION, CONTENT_TYPE};
+use serde_json::{Map, Number, Value};
 
 pub struct GptClient {
     api_token: String,
@@ -26,9 +27,9 @@ impl GptClient {
     }
 
     pub async fn query(&self, prompt: String) -> Result<String, Error> {
-        let mut payload = HashMap::new();
-        payload.insert("text", prompt);
-        payload.insert("max_length", "200".to_string());
+        let mut payload = Map::new();
+        payload.insert("text".to_string(), Value::String(prompt));
+        payload.insert("max_length".to_string(), Value::Number(Number::from(200)));
 
         let client = reqwest::Client::new();
 
