@@ -1,0 +1,15 @@
+keyword: markets
+author: Upper-class stock broker
+tweet: Take feedback from nature and markets, not from people
+###
+keyword: UK
+author: University student
+tweet: The state of UK politics right now. Liz Truss? Really?
+###
+keyword: startups
+author: Billionaire CEO
+tweet: Startups should not worry about how to put out fires, they should worry about how to start them.
+###
+keyword: [KEYWORD]
+author: [AUTHOR_DESCRIPTION]
+tweet:

@@ -48,8 +48,11 @@ impl MongoRepository {
             id: None,
             first_name: new_avatar.first_name,
             last_name: new_avatar.last_name,
+            description: new_avatar.description,
             location: new_avatar.location,
             keywords: new_avatar.keywords,
+            repetition_penalty: new_avatar.repetition_penalty,
+            temperature: new_avatar.temperature,
         };
 
         let avatar = self

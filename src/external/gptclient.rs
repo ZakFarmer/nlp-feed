@@ -28,7 +28,12 @@ impl GptClient {
         GptClient { api_token, api_url }
     }
 
-    pub async fn query(&self, prompt: String) -> Result<String, Box<dyn Error>> {
+    pub async fn query(
+        &self,
+        prompt: String,
+        repetition_penalty: f32,
+        temperature: f32,
+    ) -> Result<String, Box<dyn Error>> {
         // Initialise payload for GPT request
         let mut payload = Map::new();
         payload.insert("text".to_string(), Value::String(prompt));
@@ -37,6 +42,24 @@ impl GptClient {
         payload.insert("remove_end_sequence".to_string(), Value::Bool(true)); // Omit end sequence from response
         payload.insert("remove_input".to_string(), Value::Bool(true)); // Omit input from response
         payload.insert("max_length".to_string(), Value::Number(Number::from(200))); // Max length of 200 chars
+
+        // Configure repetition penalty (how likely the model is to repeat a word multiple times)
+        payload.insert(
+            "repetition_penalty".to_string(),
+            Value::Number(
+                Number::from_f64(repetition_penalty as f64)
+                    .expect("Couldn't parse repetition penalty to numerical value."),
+            ),
+        );
+
+        // Configure temperature (basically how different each answer should be, i.e. 0 it will be the same every time and 1 every post will be wildly different.)
+        payload.insert(
+            "temperature".to_string(),
+            Value::Number(
+                Number::from_f64(temperature as f64)
+                    .expect("Couldn't parse temperature to numerical value."),
+            ),
+        );
 
         // Configure the reqwest client
         let client = reqwest::Client::new();

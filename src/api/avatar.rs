@@ -12,8 +12,11 @@ use serde::Deserialize;
 pub struct CreateAvatarParams {
     first_name: String,
     last_name: String,
+    description: String,
     location: String,
     keywords: String,
+    repetition_penalty: f32,
+    temperature: f32,
 }
 
 #[get("/avatar/<path>")]
@@ -51,8 +54,11 @@ pub fn create_avatar(
         id: None,
         first_name: avatar_params.first_name.to_owned(),
         last_name: avatar_params.last_name.to_owned(),
+        description: avatar_params.description.to_owned(),
         location: avatar_params.location.to_owned(),
         keywords: avatar_params.keywords.to_owned(),
+        repetition_penalty: avatar_params.repetition_penalty.to_owned(),
+        temperature: avatar_params.temperature.to_owned(),
     };
 
     let status: Result<InsertOneResult, Error> = db.create_avatar(data);

@@ -11,7 +11,7 @@ use crate::{
     external::gptclient::GptClient,
     models::{avatar::Avatar, post::Post},
     repositories::mongo::MongoRepository,
-    utility::prompt::{import_prompt, Prompt},
+    utility::prompt::{import_and_populate_prompt, Prompt},
 };
 
 pub async fn populate(
@@ -35,8 +35,13 @@ pub async fn populate(
             .choose(&mut rand::thread_rng())
             .expect("Couldn't get random keyword.");
 
-        // Import prompt
-        let prompt_content = import_prompt(Prompt::Blog, String::from(*random_keyword)).unwrap();
+        // Import prompt with random keyword from avatar's keywords setting
+        let prompt_content = import_and_populate_prompt(
+            Prompt::BlogFinetuned,
+            avatar.description.to_owned(),
+            String::from(*random_keyword),
+        )
+        .unwrap();
 
         info!(
             "[Avatar {}]: Prompting GPT with keyword: {}",
@@ -45,7 +50,13 @@ pub async fn populate(
         );
 
         // Query the model with the prompt
-        let mut gpt_response = gpt_client.query(prompt_content).await?;
+        let mut gpt_response = gpt_client
+            .query(
+                prompt_content,
+                avatar.repetition_penalty,
+                avatar.temperature,
+            )
+            .await?;
 
         // Replace some extra characters that GPT comes back with sometimes
         gpt_response = gpt_response.replace(&['(', ')', '\"', '\''][..], "");

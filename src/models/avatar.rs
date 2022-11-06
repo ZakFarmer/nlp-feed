@@ -7,6 +7,9 @@ pub struct Avatar {
     pub id: Option<ObjectId>,
     pub first_name: String,
     pub last_name: String,
+    pub description: String,
     pub location: String,
     pub keywords: String,
+    pub repetition_penalty: f32,
+    pub temperature: f32,
 }
