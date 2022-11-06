@@ -1,7 +1,12 @@
+use rand::Rng;
 use rocket::{http::Status, serde::json::Json, tokio::sync::broadcast::Sender, State};
 use serde::Deserialize;
 
-use crate::{models::post::Post, repositories::mongo::MongoRepository, tasks::populate::populate};
+use crate::{
+    models::{avatar::Avatar, post::Post},
+    repositories::mongo::MongoRepository,
+    tasks::populate::populate,
+};
 
 use super::post::NewPost;
 
@@ -11,22 +16,16 @@ pub struct PopulatePostsParams {
     pub avatar_id: String,
 }
 
-#[post("/utility/populate", data = "<populate_params>")]
+#[post("/utility/populate")]
 pub async fn populate_posts(
     db: &State<MongoRepository>,
-    populate_params: Json<PopulatePostsParams>,
-    state: &State<Sender<NewPost>>,
+    queue: &State<Sender<NewPost>>,
 ) -> Result<Json<bool>, Status> {
-    let avatar = db
-        .get_avatar(&populate_params.avatar_id)
-        .expect("Couldn't get avatar.");
+    let avatars = db
+        .get_all_avatars()
+        .expect("Couldn't retrieve all avatars.");
 
-    let result = populate(db, avatar, state).await;
-
-    match result {
-        Ok(val) => Ok(val),
-        Err(_) => Err(Status::InternalServerError),
-    };
+    populate(db, avatars, queue).await;
 
     Ok(Json(true))
 }
