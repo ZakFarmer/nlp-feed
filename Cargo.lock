@@ -67,6 +67,7 @@ dependencies = [
  "env_logger",
  "log",
  "mongodb",
+ "rand",
  "reqwest",
  "rocket",
  "serde",

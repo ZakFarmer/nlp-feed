@@ -1,12 +1,27 @@
+use rocket::{http::Status, serde::json::Json, tokio::sync::broadcast::Sender, State};
+use serde::Deserialize;
 
+use crate::{models::post::Post, repositories::mongo::MongoRepository, tasks::populate::populate};
 
-use rocket::{http::Status, serde::json::Json, State};
+use super::post::NewPost;
 
-use crate::{repositories::mongo::MongoRepository, tasks::populate::populate};
+#[derive(Deserialize)]
+#[serde(crate = "rocket::serde")]
+pub struct PopulatePostsParams {
+    pub avatar_id: String,
+}
 
-#[post("/utility/populate")]
-pub async fn populate_posts(db: &State<MongoRepository>) -> Result<Json<bool>, Status> {
-    let result = populate(db).await;
+#[post("/utility/populate", data = "<populate_params>")]
+pub async fn populate_posts(
+    db: &State<MongoRepository>,
+    populate_params: Json<PopulatePostsParams>,
+    state: &State<Sender<NewPost>>,
+) -> Result<Json<bool>, Status> {
+    let avatar = db
+        .get_avatar(&populate_params.avatar_id)
+        .expect("Couldn't get avatar.");
+
+    let result = populate(db, avatar, state).await;
 
     match result {
         Ok(val) => Ok(val),

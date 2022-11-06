@@ -2,56 +2,71 @@ use std::time::Duration;
 
 use async_std::task;
 
-use rocket::State;
+use rand::seq::SliceRandom;
+use rocket::{tokio::sync::broadcast::Sender, State};
 
 use crate::{
+    api::post::NewPost,
+    exceptions::gpt::GPTException,
     external::gptclient::GptClient,
-    models::post::Post,
+    models::{avatar::Avatar, post::Post},
     repositories::mongo::MongoRepository,
     utility::prompt::{import_prompt, Prompt},
 };
 
-pub async fn populate(db: &State<MongoRepository>) -> Result<bool, Box<dyn std::error::Error>> {
+pub async fn populate(
+    db: &State<MongoRepository>,
+    avatar: Avatar,
+    queue: &State<Sender<NewPost>>,
+) -> Result<bool, Box<dyn std::error::Error>> {
     // Initialise GPT client
     let gpt_client = GptClient::init();
 
-    // Initalise index to use for iterating through articles
-    let _index: usize = 0;
+    let mut keywords_string: String = avatar.keywords.clone();
 
-    // Iterate over the posts marked as unpopulated (i.e. not processed by the model yet)
-    for index in 1..50 {
-        // Import prompt
-        let prompt_content = import_prompt(Prompt::Blog, String::from("usa")).unwrap();
+    keywords_string.retain(|chr| !chr.is_whitespace());
 
-        info!("Prompting GPT with: {}", prompt_content);
+    let keywords = keywords_string.split(",");
 
-        // Query the model with the prompt
-        let mut gpt_response = gpt_client.query(prompt_content).await?;
+    let keywords_vec: Vec<&str> = keywords.collect();
 
-        // Replace some extra characters that GPT comes back with sometimes
-        gpt_response = gpt_response.replace(&['(', ')', '\"', '\''][..], "");
+    let random_keyword = keywords_vec
+        .choose(&mut rand::thread_rng())
+        .expect("Couldn't get random keyword.");
 
-        // Trim whitespace
-        gpt_response = gpt_response.trim().to_string();
+    // Import prompt
+    let prompt_content = import_prompt(Prompt::Blog, String::from(*random_keyword)).unwrap();
 
-        if (gpt_response.len() > 200) {
-            // If the response is longer than 200 it's probably because the model has
-            // started talking gibberish, so we discard this one and don't add it to the DB
-            continue;
-        }
+    info!(
+        "[Avatar {}]: Prompting GPT with keyword: {}",
+        avatar.id.unwrap(),
+        random_keyword.to_string(),
+    );
 
-        let new_post = Post {
-            id: None,
-            title: format!("Generated post #{}", index),
-            content: gpt_response.to_string(),
-        };
+    // Query the model with the prompt
+    let mut gpt_response = gpt_client.query(prompt_content).await?;
 
-        // Add post to the database
-        db.create_post(new_post)?;
+    // Replace some extra characters that GPT comes back with sometimes
+    gpt_response = gpt_response.replace(&['(', ')', '\"', '\''][..], "");
 
-        // Sleep for a second to avoid hitting concurrent requests limit
-        task::sleep(Duration::from_secs(1)).await;
+    // Trim whitespace
+    gpt_response = gpt_response.trim().to_string();
+
+    if (gpt_response.len() > 200) {
+        // If the response is longer than 200 it's probably because the model has
+        // started talking gibberish, so we discard this one
+        return Err(Box::new(GPTException::ResponseTooLongException));
     }
+
+    let new_post = Post {
+        id: None,
+        content: gpt_response.to_string(),
+        avatar: avatar.clone(),
+        date_published: "".to_string(),
+    };
+
+    // Add post to the database
+    db.create_post(new_post, avatar, queue)?;
 
     Ok(true)
 }
