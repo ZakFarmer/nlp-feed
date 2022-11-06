@@ -25,3 +25,7 @@ The source code for the site can be found here.
 
 ## Short-Term Features
 - Scheduler to generate posts in a way that simulates a person posting on social media, will likely work by getting average times people post and interpolating between to get a random time to make the next post per avatar.
+- Twitter integration to allow for sending posts to Twitter.
+
+## Long-Term Features
+- Integrations for Facebook and Reddit for longer-form content (and potentially images? Looking at you DALL-E 👀)
