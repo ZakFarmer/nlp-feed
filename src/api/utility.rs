@@ -1,12 +1,7 @@
-use rand::Rng;
 use rocket::{http::Status, serde::json::Json, tokio::sync::broadcast::Sender, State};
 use serde::Deserialize;
 
-use crate::{
-    models::{avatar::Avatar, post::Post},
-    repositories::mongo::MongoRepository,
-    tasks::populate::populate,
-};
+use crate::{repositories::mongo::MongoRepository, tasks::populate::populate};
 
 use super::post::NewPost;
 
@@ -25,7 +20,10 @@ pub async fn populate_posts(
         .get_all_avatars()
         .expect("Couldn't retrieve all avatars.");
 
-    populate(db, avatars, queue).await;
+    let result = populate(db, avatars, queue).await;
 
-    Ok(Json(true))
+    match result {
+        Ok(value) => Ok(Json(value)),
+        Err(_) => return Err(Status::InternalServerError),
+    }
 }

@@ -90,7 +90,7 @@ impl MongoRepository {
         // it was a lot quicker than doing it the right way :)
         let new_post: NewPost = NewPost {
             content: new_document.content,
-            avatar: avatar,
+            avatar,
             date_published: chrono::Utc::now().to_string(),
         };
 
@@ -156,21 +156,7 @@ impl MongoRepository {
         Ok(posts)
     }
 
-    pub fn get_unpopulated_posts(&self) -> Result<Vec<Post>, Error> {
-        // Configure filter to get all posts where populated is false
-        let filter = doc! {"populated": false};
-
-        let cursors = self
-            .post_collection
-            .find(filter, None)
-            .ok()
-            .expect("Could get unpopulated posts.");
-
-        let posts = cursors.map(|document| document.unwrap()).collect();
-
-        Ok(posts)
-    }
-
+    #[allow(dead_code)]
     pub fn update_post(&self, id: &String, new_post: Post) -> Result<UpdateResult, Error> {
         let object_id = ObjectId::parse_str(id)?;
 

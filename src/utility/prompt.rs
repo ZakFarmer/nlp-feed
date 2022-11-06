@@ -2,9 +2,9 @@ use std::fs::File;
 use std::io::prelude::*;
 
 pub enum Prompt {
+    #[allow(dead_code)]
     Blog,
     BlogFinetuned,
-    News,
 }
 
 pub fn import_and_populate_prompt(
@@ -12,11 +12,10 @@ pub fn import_and_populate_prompt(
     avatar_description: String,
     keyword: String,
 ) -> std::io::Result<String> {
+    // Match prompt ID to prompt TXT path
     let prompt_id = match prompt {
         Prompt::Blog => "blog",
         Prompt::BlogFinetuned => "blog_finetuned",
-        Prompt::News => "news",
-        _ => "blog",
     };
 
     // Open prompt file

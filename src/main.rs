@@ -9,9 +9,6 @@ mod tasks;
 mod utility;
 
 #[macro_use]
-extern crate log;
-
-#[macro_use]
 extern crate rocket;
 
 use api::{
@@ -21,9 +18,9 @@ use api::{
     utility::populate_posts,
 };
 use fairings::cors::CORS;
-use models::post::Post;
+
 use repositories::mongo::MongoRepository;
-use rocket::tokio::sync::broadcast::{channel, error::RecvError, Sender};
+use rocket::tokio::sync::broadcast::channel;
 
 #[launch]
 fn rocket() -> _ {

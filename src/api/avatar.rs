@@ -1,7 +1,4 @@
-use crate::{
-    models::{avatar::Avatar, post::Post},
-    repositories::mongo::MongoRepository,
-};
+use crate::{models::avatar::Avatar, repositories::mongo::MongoRepository};
 use mongodb::bson::extjson::de::Error;
 use mongodb::results::InsertOneResult;
 use rocket::{http::Status, serde::json::Json, State};
