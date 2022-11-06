@@ -1,6 +1,6 @@
-use std::time::Duration;
 
-use async_std::task;
+
+
 
 use rand::seq::SliceRandom;
 use rocket::{tokio::sync::broadcast::Sender, State};
@@ -26,7 +26,7 @@ pub async fn populate(
 
     keywords_string.retain(|chr| !chr.is_whitespace());
 
-    let keywords = keywords_string.split(",");
+    let keywords = keywords_string.split(',');
 
     let keywords_vec: Vec<&str> = keywords.collect();
 
@@ -52,7 +52,7 @@ pub async fn populate(
     // Trim whitespace
     gpt_response = gpt_response.trim().to_string();
 
-    if (gpt_response.len() > 200) {
+    if gpt_response.len() > 200 {
         // If the response is longer than 200 it's probably because the model has
         // started talking gibberish, so we discard this one
         return Err(Box::new(GPTException::ResponseTooLongException));
@@ -60,7 +60,7 @@ pub async fn populate(
 
     let new_post = Post {
         id: None,
-        content: gpt_response.to_string(),
+        content: gpt_response,
         avatar: avatar.clone(),
         date_published: "".to_string(),
     };

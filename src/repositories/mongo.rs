@@ -87,7 +87,7 @@ impl MongoRepository {
         // it was a lot quicker than doing it the right way :)
         let new_post: NewPost = NewPost {
             content: new_document.content,
-            avatar: avatar,
+            avatar,
             date_published: chrono::Utc::now().to_string(),
         };
 

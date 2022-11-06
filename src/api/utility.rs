@@ -1,7 +1,7 @@
 use rocket::{http::Status, serde::json::Json, tokio::sync::broadcast::Sender, State};
 use serde::Deserialize;
 
-use crate::{models::post::Post, repositories::mongo::MongoRepository, tasks::populate::populate};
+use crate::{repositories::mongo::MongoRepository, tasks::populate::populate};
 
 use super::post::NewPost;
 

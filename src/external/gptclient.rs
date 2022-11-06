@@ -1,4 +1,4 @@
-use std::{collections::HashMap, env, error::Error};
+use std::{env, error::Error};
 
 use dotenv::dotenv;
 use reqwest::header::{AUTHORIZATION, CONTENT_TYPE};

@@ -1,5 +1,5 @@
 use crate::{
-    models::{avatar::Avatar, post::Post},
+    models::{avatar::Avatar},
     repositories::mongo::MongoRepository,
 };
 use mongodb::bson::extjson::de::Error;
