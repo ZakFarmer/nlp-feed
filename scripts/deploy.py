@@ -4,8 +4,8 @@ import sagemaker
 role = sagemaker.get_execution_role()
 
 hub = {
-    'HF_MODEL_ID': 'EleutherAI/gpt-neo-2.7B',
-    'HF_TASK': 'text-generation'
+	'HF_MODEL_ID':'EleutherAI/gpt-j-6B',
+	'HF_TASK':'text-generation'
 }
 
 huggingface_model = HuggingFaceModel(
