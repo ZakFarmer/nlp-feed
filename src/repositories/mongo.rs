@@ -3,6 +3,9 @@ use std::env;
 extern crate dotenv;
 use dotenv::dotenv;
 
+extern crate bcrypt;
+use bcrypt::{hash, verify, DEFAULT_COST};
+
 use mongodb::{
     bson::{doc, extjson::de::Error, oid::ObjectId, Document},
     results::{InsertOneResult, UpdateResult},
@@ -12,12 +15,13 @@ use rocket::{tokio::sync::broadcast::Sender, State};
 
 use crate::{
     api::post::NewPost,
-    models::{avatar::Avatar, post::Post},
+    models::{avatar::Avatar, post::Post, user::User},
 };
 
 pub struct MongoRepository {
     avatar_collection: Collection<Avatar>,
     post_collection: Collection<Post>,
+    user_collection: Collection<User>,
 }
 
 impl MongoRepository {
@@ -34,12 +38,15 @@ impl MongoRepository {
         let client = Client::with_uri_str(uri).unwrap();
         let db = client.database("aiBlog");
 
+        // Initalise collections
         let avatar_collection: Collection<Avatar> = db.collection("Avatar");
         let post_collection: Collection<Post> = db.collection("Post");
+        let user_collection: Collection<User> = db.collection("User");
 
         MongoRepository {
             avatar_collection,
             post_collection,
+            user_collection,
         }
     }
 
@@ -97,6 +104,27 @@ impl MongoRepository {
         queue.send(new_post)?;
 
         Ok(post)
+    }
+
+    pub fn create_user(
+        &self,
+        new_user: User,
+    ) -> Result<InsertOneResult, Box<dyn std::error::Error>> {
+        let new_document: User = User {
+            id: None,
+            username: new_user.username,
+            hashed_password: new_user.hashed_password,
+            email: new_user.email,
+            email_verified_at: new_user.email_verified_at,
+        };
+
+        let user = self
+            .user_collection
+            .insert_one(&new_document, None)
+            .ok()
+            .expect("Couldn't create new user.");
+
+        Ok(user)
     }
 
     pub fn get_avatar(&self, id: &String) -> Result<Avatar, Error> {
