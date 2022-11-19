@@ -50,7 +50,8 @@ pub async fn populate(
             .query(
                 prompt_content,
                 avatar.repetition_penalty,
-                avatar.temperature,
+                Some(avatar.temperature),
+                Some(avatar.top_p),
             )
             .await?;
 

@@ -12,8 +12,9 @@ pub struct CreateAvatarParams {
     description: String,
     location: String,
     keywords: String,
-    repetition_penalty: f32,
-    temperature: f32,
+    repetition_penalty: f64,
+    temperature: f64,
+    top_p: f64,
 }
 
 #[get("/avatar/<path>")]
@@ -56,6 +57,7 @@ pub fn create_avatar(
         keywords: avatar_params.keywords.to_owned(),
         repetition_penalty: avatar_params.repetition_penalty.to_owned(),
         temperature: avatar_params.temperature.to_owned(),
+        top_p: avatar_params.top_p.to_owned(),
     };
 
     let status: Result<InsertOneResult, Error> = db.create_avatar(data);

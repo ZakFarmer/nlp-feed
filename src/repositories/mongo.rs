@@ -53,6 +53,7 @@ impl MongoRepository {
             keywords: new_avatar.keywords,
             repetition_penalty: new_avatar.repetition_penalty,
             temperature: new_avatar.temperature,
+            top_p: new_avatar.top_p,
         };
 
         let avatar = self

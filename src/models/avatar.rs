@@ -10,6 +10,7 @@ pub struct Avatar {
     pub description: String,
     pub location: String,
     pub keywords: String,
-    pub repetition_penalty: f32,
-    pub temperature: f32,
+    pub repetition_penalty: f64,
+    pub temperature: f64,
+    pub top_p: f64,
 }

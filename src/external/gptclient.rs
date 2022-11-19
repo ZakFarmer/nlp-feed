@@ -31,8 +31,9 @@ impl GptClient {
     pub async fn query(
         &self,
         prompt: String,
-        repetition_penalty: f32,
-        temperature: f32,
+        repetition_penalty: f64,
+        temperature: Option<f64>,
+        top_p: Option<f64>,
     ) -> Result<String, Box<dyn Error>> {
         // Initialise payload for GPT request
         let mut payload = Map::new();
@@ -41,25 +42,36 @@ impl GptClient {
         payload.insert("end_sequence".to_string(), Value::String("###".to_string())); // Specify the end sequence used in the prompt
         payload.insert("remove_end_sequence".to_string(), Value::Bool(true)); // Omit end sequence from response
         payload.insert("remove_input".to_string(), Value::Bool(true)); // Omit input from response
-        payload.insert("max_length".to_string(), Value::Number(Number::from(200))); // Max length of 200 chars
+        payload.insert("max_length".to_string(), Value::Number(Number::from(140))); // Max length of 140 chars (old Twitter limit)
 
         // Configure repetition penalty (how likely the model is to repeat a word multiple times)
         payload.insert(
             "repetition_penalty".to_string(),
             Value::Number(
-                Number::from_f64(repetition_penalty as f64)
+                Number::from_f64(repetition_penalty)
                     .expect("Couldn't parse repetition penalty to numerical value."),
             ),
         );
 
-        // Configure temperature (basically how different each answer should be, i.e. 0 it will be the same every time and 1 every post will be wildly different.)
-        payload.insert(
-            "temperature".to_string(),
-            Value::Number(
-                Number::from_f64(temperature as f64)
-                    .expect("Couldn't parse temperature to numerical value."),
-            ),
-        );
+        if let Some(i) = temperature {
+            // Configure temperature (basically how different each answer should be, i.e. 0 it will be the same every time and 1 every post will be wildly different.)
+            payload.insert(
+                "temperature".to_string(),
+                Value::Number(
+                    Number::from_f64(temperature.unwrap())
+                        .expect("Couldn't parse temperature to numerical value."),
+                ),
+            );
+        } else if let Some(i) = top_p {
+            // Configure top p
+            payload.insert(
+                "top_p".to_string(),
+                Value::Number(
+                    Number::from_f64(top_p.unwrap())
+                        .expect("Couldn't parse top_p parameter value."),
+                ),
+            );
+        }
 
         // Configure the reqwest client
         let client = reqwest::Client::new();
